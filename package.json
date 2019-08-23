@@ -1,0 +1,54 @@
+{
+  "name": "tlru",
+  "version": "0.0.1",
+  "description": "Time aware least recently used (TLRU) cache for Node",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "files": [
+    "dist/*.js",
+    "dist/lib/*.js",
+    "dist/*.ts",
+    "dist/lib/*.ts"
+  ],
+  "engines": {
+    "node": ">=10.1"
+  },
+  "scripts": {
+    "test": "node --expose-gc node_modules/jest/bin/jest --detectOpenHandles --logHeapUsage --coverage",
+    "lint": "eslint \"{src,__tests__}/**/*.ts\" --ignore-path .gitignore",
+    "build": "tsc",
+    "postversion": "git push origin master --tags",
+    "prepublishOnly": "tsc"
+  },
+  "directories": {
+    "lib": "src",
+    "test": "__tests__"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tinovyatkin/tlru.git"
+  },
+  "author": "Konstantin Vyatkin <tino@vtkn.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tinovyatkin/tlru/issues"
+  },
+  "homepage": "https://github.com/tinovyatkin/tlru#readme",
+  "devDependencies": {
+    "@babel/preset-env": "7.5.5",
+    "@babel/preset-typescript": "7.3.3",
+    "@types/jest": "24.0.18",
+    "@types/node": "12.7.2",
+    "@typescript-eslint/eslint-plugin": "2.0.0",
+    "@typescript-eslint/parser": "2.0.0",
+    "eslint": "6.2.1",
+    "eslint-config-prettier": "6.1.0",
+    "eslint-plugin-prettier": "3.1.0",
+    "jest": "25.0.0",
+    "prettier": "1.18.2",
+    "typescript": "3.5.3"
+  },
+  "dependencies": {
+    "fun-dispatcher": "1.2.2"
+  }
+}

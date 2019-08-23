@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "lib": ["esnext"],
+    "outDir": "./dist",
+    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "removeComments": true,
+    "pretty": false,
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "declaration": true,
+    "listEmittedFiles": true,
+    "allowSyntheticDefaultImports": false,
+    "strict": true,
+    /* Additional Checks */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "strictFunctionTypes": false
+  },
+  "include": ["./src/**/*.ts"],
+  "exclude": ["node_modules", "@types"]
+}
