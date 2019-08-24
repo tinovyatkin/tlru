@@ -50,7 +50,7 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "fun-dispatcher": "1.2.2"
+    "fun-dispatcher": "1.2.3"
   },
   "jest": {
     "collectCoverage": true,
