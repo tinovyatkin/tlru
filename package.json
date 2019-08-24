@@ -4,11 +4,22 @@
   "description": "Time aware least recently used (TLRU) cache for Node",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
+  "keywords": [
+    "LRU",
+    "cache",
+    "typescript",
+    "lru-cache",
+    "ttl",
+    "ttu",
+    "time-aware",
+    "setTimeout",
+    "tlru",
+    "expires",
+    "receptacle"
+  ],
   "files": [
     "dist/*.js",
-    "dist/lib/*.js",
-    "dist/*.ts",
-    "dist/lib/*.ts"
+    "dist/*.ts"
   ],
   "engines": {
     "node": ">=10.1"
