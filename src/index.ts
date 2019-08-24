@@ -41,13 +41,18 @@ export class TLRU extends Map<string, unknown> {
         if (original)
           this.scheduler.schedule(
             key,
-            () => this.delete(key),
+            () => super.delete(key),
             original.delay + super.size
           );
       }
       return super.get(key);
     }
     return undefined;
+  }
+
+  delete(key: string): boolean {
+    this.scheduler.delete(key);
+    return super.delete(key);
   }
 
   clear() {
