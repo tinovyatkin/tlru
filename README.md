@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/tinovyatkin/tlru/branch/master/graph/badge.svg)](https://codecov.io/gh/tinovyatkin/tlru)
+
 # tlru
 Time aware least recently used [TLRU](https://en.wikipedia.org/wiki/Cache_replacement_policies#Time_aware_least_recently_used_(TLRU)) cache for Node.JS
 
