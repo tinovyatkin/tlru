@@ -22,8 +22,9 @@ lru.set('c', 1);
 lru.set('d', 1);
 
 // TLRU prunes cache lazily, so, need to give some time
-await new Promise(resolve => setImmediate(resolve));
-expect([...lru.keys()]).toEqual(['c', 'd']);
+setImmediate(() => {
+  expect([...lru.keys()]).toEqual(['c', 'd']);
+});
 
 // Peek item without affecting it's LRU rating
 lru.get('a', false /* this is the flag */);
