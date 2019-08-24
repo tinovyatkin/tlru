@@ -20,21 +20,16 @@ export class TLRU extends Map<string, unknown> {
     if (options.defaultLRU) this.defaultLRU = true;
   }
 
-  set(key: string, value: unknown, ttuMs = this.maxAgeMs) {
+  set(
+    key: string,
+    value: unknown,
+    ttuMs = this.maxAgeMs + this.size /* to separate fast entries */
+  ) {
     if (this.size >= this.maxStoreSize) {
       // cleaning up old entries - this first all to be cleaned actually
       this.scheduler.runNext();
-      // find a key with smallest expiry
-      // const soonest = [...this.scheduler.entries()].reduce((prev, v) =>
-      //   prev[1].expiry < v[1].expiry ? prev : v
-      // );
-      // super.delete(soonest[0]);
     }
-    this.scheduler.schedule(
-      key,
-      () => super.delete(key),
-      ttuMs + super.size /* to separate fast entries */
-    );
+    this.scheduler.schedule(key, () => super.delete(key), ttuMs);
     return super.set(key, value);
   }
 

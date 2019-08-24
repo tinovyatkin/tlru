@@ -51,5 +51,16 @@
   },
   "dependencies": {
     "fun-dispatcher": "1.2.2"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "verbose": true,
+    "coverageReporters": [
+      "text",
+      "json",
+      "cobertura",
+      "lcov"
+    ],
+    "testEnvironment": "node"
   }
 }
