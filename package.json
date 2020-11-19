@@ -58,7 +58,7 @@
     "jest": "26.6.3",
     "jest-junit": "12.0.0",
     "prettier": "2.1.2",
-    "typescript": "4.0.5"
+    "typescript": "4.1.2"
   },
   "dependencies": {
     "fun-dispatcher": "1.2.3"
