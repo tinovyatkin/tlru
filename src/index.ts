@@ -1,9 +1,10 @@
-import { Scheduler } from 'fun-dispatcher';
+import { Scheduler } from "fun-dispatcher";
 
-export class TLRU extends Map<string, unknown> {
+export class TLRU<T> extends Map<string, T> {
   private maxStoreSize = 1000;
   private maxAgeMs = 12 * 60 * 60 * 1000; // 12 hours;
-  private scheduler = new Scheduler();
+  private readonly scheduler = new Scheduler();
+  private readonly disposer?: (obj: T) => void;
 
   private defaultLRU = false;
 
@@ -12,28 +13,38 @@ export class TLRU extends Map<string, unknown> {
       maxStoreSize?: number;
       maxAgeMs?: number;
       defaultLRU?: boolean;
+      disposer?: (obj: T) => void;
     } = {}
   ) {
     super();
     if (options.maxAgeMs) this.maxAgeMs = options.maxAgeMs;
     if (options.maxStoreSize) this.maxStoreSize = options.maxStoreSize;
     if (options.defaultLRU) this.defaultLRU = true;
+    if (options.disposer) this.disposer = options.disposer;
   }
 
   set(
     key: string,
-    value: unknown,
+    value: T,
     ttuMs = this.maxAgeMs + this.size /* to separate fast entries */
-  ) {
+  ): this {
     if (this.size >= this.maxStoreSize) {
       // cleaning up old entries - this first all to be cleaned actually
       this.scheduler.runNext();
     }
-    this.scheduler.schedule(key, () => super.delete(key), ttuMs);
+    this.scheduler.schedule(
+      key,
+      () => {
+        if (typeof this.disposer === "function" && super.has(key))
+          this.disposer(super.get(key)!);
+        super.delete(key);
+      },
+      ttuMs
+    );
     return super.set(key, value);
   }
 
-  get(key: string, revive = this.defaultLRU): unknown | undefined {
+  get(key: string, revive = this.defaultLRU): T | undefined {
     if (this.has(key)) {
       // reset use time
       if (revive) {
@@ -55,12 +66,12 @@ export class TLRU extends Map<string, unknown> {
     return super.delete(key);
   }
 
-  clear() {
+  clear(): void {
     this.scheduler.flush();
     super.clear();
   }
 
-  toJSON() {
+  toJSON(): [string, T][] {
     return [...this].sort(([v], [v1]) => {
       const t1 = this.scheduler.get(v);
       const t2 = this.scheduler.get(v1);
