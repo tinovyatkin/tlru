@@ -22,7 +22,7 @@
     "dist/*.ts"
   ],
   "engines": {
-    "node": ">=10.1"
+    "node": ">=12.1"
   },
   "scripts": {
     "test": "node --expose-gc node_modules/jest/bin/jest --detectOpenHandles --logHeapUsage --coverage",
