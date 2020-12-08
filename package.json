@@ -1,6 +1,6 @@
 {
   "name": "tlru",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Time aware least recently used (TLRU) cache for Node",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
