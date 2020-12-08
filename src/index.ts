@@ -1,6 +1,6 @@
 import { Scheduler } from "fun-dispatcher";
 
-export class TLRU<T> extends Map<string, T> {
+export class TLRU<U, T> extends Map<U, T> {
   private maxStoreSize = 1000;
   private maxAgeMs = 12 * 60 * 60 * 1000; // 12 hours;
   private readonly scheduler = new Scheduler();
@@ -24,7 +24,7 @@ export class TLRU<T> extends Map<string, T> {
   }
 
   set(
-    key: string,
+    key: U,
     value: T,
     ttuMs = this.maxAgeMs + this.size /* to separate fast entries */
   ): this {
@@ -33,7 +33,7 @@ export class TLRU<T> extends Map<string, T> {
       this.scheduler.runNext();
     }
     this.scheduler.schedule(
-      key,
+      String(key),
       () => {
         if (typeof this.disposer === "function" && super.has(key))
           this.disposer(super.get(key)!);
@@ -44,14 +44,14 @@ export class TLRU<T> extends Map<string, T> {
     return super.set(key, value);
   }
 
-  get(key: string, revive = this.defaultLRU): T | undefined {
+  get(key: U, revive = this.defaultLRU): T | undefined {
     if (this.has(key)) {
       // reset use time
       if (revive) {
-        const original = this.scheduler.get(key);
+        const original = this.scheduler.get(String(key));
         if (original)
           this.scheduler.schedule(
-            key,
+            String(key),
             () => super.delete(key),
             original.delay + super.size
           );
@@ -61,8 +61,8 @@ export class TLRU<T> extends Map<string, T> {
     return undefined;
   }
 
-  delete(key: string): boolean {
-    this.scheduler.delete(key);
+  delete(key: U): boolean {
+    this.scheduler.delete(String(key));
     return super.delete(key);
   }
 
@@ -71,10 +71,10 @@ export class TLRU<T> extends Map<string, T> {
     super.clear();
   }
 
-  toJSON(): [string, T][] {
+  toJSON(): [U, T][] {
     return [...this].sort(([v], [v1]) => {
-      const t1 = this.scheduler.get(v);
-      const t2 = this.scheduler.get(v1);
+      const t1 = this.scheduler.get(String(v));
+      const t2 = this.scheduler.get(String(v1));
       if (!t1) return -1;
       if (!t2) return 1;
       return t1.expiry - t2.expiry;
