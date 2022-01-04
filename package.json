@@ -49,7 +49,7 @@
     "@babel/preset-env": "7.16.7",
     "@babel/preset-typescript": "7.16.7",
     "@types/jest": "27.4.0",
-    "@types/node": "16.11.18",
+    "@types/node": "16.11.19",
     "@typescript-eslint/eslint-plugin": "5.9.0",
     "@typescript-eslint/parser": "5.9.0",
     "eslint": "8.6.0",
