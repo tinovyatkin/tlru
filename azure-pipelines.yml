@@ -24,7 +24,7 @@ steps:
 - script: npx codecov -f "./coverage/coverage-final.json" -y "./.codecov.yml" -t $(CODECOV_TOKEN)
   displayName: "Upload to Codecov"
 
-- task: PublishTestResults@2
+- task: PublishTestResults@2.203.0
   condition: succeededOrFailed()
   inputs:
     testRunner: JUnit
