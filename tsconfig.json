@@ -10,7 +10,6 @@
     "moduleResolution": "node16",
     "module": "node18",
     "declaration": true,
-    "esModuleInterop": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
