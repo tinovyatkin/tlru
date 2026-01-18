@@ -1,8 +1,8 @@
 {
-  "eslint.validate": ["typescript"],
-  "jest.autoEnable": false,
-  "jest.runAllTestsFirst": false,
-  "typescript.referencesCodeLens.enabled": true,
-  "typescript.implementationsCodeLens.enabled": true,
-  "typescript.suggest.autoImports": false
+  "eslint.enable": false,
+  "prettier.enable": false,
+  "oxc.typeAware": true,
+  "[typescript][json][yaml]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  }
 }

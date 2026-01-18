@@ -1,236 +1,214 @@
-import { TLRU } from '../src/index';
+import { describe, it, afterEach } from "node:test";
+import assert from "node:assert";
+import { TLRU } from "../src/index.ts";
 
-describe('Use TLRU as LRU', () => {
-  afterEach(setImmediate);
+describe("Use TLRU as LRU", () => {
+  afterEach(() => new Promise((resolve) => setImmediate(resolve)));
 
-  it('clear() sets the cache to its initial state', () => {
+  it("clear() sets the cache to its initial state", () => {
     const lru = new TLRU({ defaultLRU: true, maxStoreSize: 2, maxAgeMs: 1000 });
 
     const json1 = JSON.stringify(lru);
 
-    lru.set('foo', 'bar');
+    lru.set("foo", "bar");
     lru.clear();
     const json2 = JSON.stringify(lru);
 
-    expect(json2).toBe(json1);
+    assert.strictEqual(json2, json1);
   });
 
   it("setting keys doesn't grow past max size", async () => {
     const lru = new TLRU({ defaultLRU: true, maxStoreSize: 3, maxAgeMs: 1000 });
-    expect(lru.size).toBe(0);
-    lru.set('foo1', 'bar1');
-    expect(lru.size).toBe(1);
-    lru.set('foo2', 'bar2');
-    expect(lru.size).toBe(2);
-    lru.set('foo3', 'bar3');
-    expect(lru.size).toBe(3);
+    assert.strictEqual(lru.size, 0);
+    lru.set("foo1", "bar1");
+    assert.strictEqual(lru.size, 1);
+    lru.set("foo2", "bar2");
+    assert.strictEqual(lru.size, 2);
+    lru.set("foo3", "bar3");
+    assert.strictEqual(lru.size, 3);
 
-    lru.set('foo4', 'bar4');
-    await new Promise(resolve => setImmediate(resolve));
-    expect(lru.size).toBe(3);
+    lru.set("foo4", "bar4");
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.strictEqual(lru.size, 3);
   });
 
-  it('setting keys returns `this`', () => {
+  it("setting keys returns `this`", () => {
     const lru = new TLRU({ defaultLRU: true, maxStoreSize: 2, maxAgeMs: 1000 });
-    expect(lru.set('foo', 'bar')).toBeInstanceOf(TLRU);
-    expect(lru.set('foo1', 'bar1').size).toBe(2);
+    assert.ok(lru.set("foo", "bar") instanceof TLRU);
+    assert.strictEqual(lru.set("foo1", "bar1").size, 2);
   });
 
-  it('lru invariant is maintained for set()', done => {
-    const lru = new TLRU({ defaultLRU: true, maxStoreSize: 2, maxAgeMs: 1000 });
-
-    expect.assertions(1);
-
-    lru.set('foo1', 'bar1');
-    lru.set('foo2', 'bar2');
-    lru.set('foo3', 'bar3');
-    lru.set('foo4', 'bar4');
-
-    setImmediate(() => {
-      expect([...lru.keys()]).toEqual(['foo3', 'foo4']);
-      done();
-    });
-  });
-
-  it('overwriting a key updates the value', () => {
-    const lru = new TLRU({ defaultLRU: true, maxStoreSize: 2, maxAgeMs: 1000 });
-    lru.set('foo1', 'bar1');
-    expect(lru.get('foo1')).toBe('bar1');
-    lru.set('foo1', 'bar2');
-    expect(lru.get('foo1')).toBe('bar2');
-  });
-
-  it('lru invariant is maintained for get()', done => {
-    expect.assertions(3);
-
+  it("lru invariant is maintained for set()", async () => {
     const lru = new TLRU({ defaultLRU: true, maxStoreSize: 2, maxAgeMs: 1000 });
 
-    lru.set('foo1', 'bar1');
-    lru.set('foo2', 'bar2');
-    expect(lru.size).toBe(2);
+    lru.set("foo1", "bar1");
+    lru.set("foo2", "bar2");
+    lru.set("foo3", "bar3");
+    lru.set("foo4", "bar4");
 
-    lru.get('foo1'); // now foo2 should be deleted instead of foo1
-
-    lru.set('foo3', 'bar3');
-
-    setImmediate(() => {
-      expect(lru.size).toBe(2);
-      expect([...lru.keys()]).toEqual(['foo1', 'foo3']);
-      done();
-    });
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.deepStrictEqual([...lru.keys()], ["foo3", "foo4"]);
   });
 
-  it('lru invariant is maintained after set(), get() and delete()', done => {
+  it("overwriting a key updates the value", () => {
+    const lru = new TLRU({ defaultLRU: true, maxStoreSize: 2, maxAgeMs: 1000 });
+    lru.set("foo1", "bar1");
+    assert.strictEqual(lru.get("foo1"), "bar1");
+    lru.set("foo1", "bar2");
+    assert.strictEqual(lru.get("foo1"), "bar2");
+  });
+
+  it("lru invariant is maintained for get()", async () => {
     const lru = new TLRU({ defaultLRU: true, maxStoreSize: 2, maxAgeMs: 1000 });
 
-    lru.set('a', 1);
-    lru.set('b', 2);
-    expect(lru.get('a')).toBe(1);
-    lru.delete('a');
-    expect(lru.size).toBe(1);
-    lru.set('c', 1);
-    lru.set('d', 1);
+    lru.set("foo1", "bar1");
+    lru.set("foo2", "bar2");
+    assert.strictEqual(lru.size, 2);
 
-    setTimeout(() => {
-      expect([...lru.keys()]).toEqual(['c', 'd']);
-      done();
-    }, 300);
+    lru.get("foo1"); // now foo2 should be deleted instead of foo1
+
+    lru.set("foo3", "bar3");
+
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.strictEqual(lru.size, 2);
+    assert.deepStrictEqual([...lru.keys()], ["foo1", "foo3"]);
   });
 
-  it('lru invariant is maintained in the corner case size == 1', done => {
+  it("lru invariant is maintained after set(), get() and delete()", async () => {
+    const lru = new TLRU({ defaultLRU: true, maxStoreSize: 2, maxAgeMs: 1000 });
+
+    lru.set("a", 1);
+    lru.set("b", 2);
+    assert.strictEqual(lru.get("a"), 1);
+    lru.delete("a");
+    assert.strictEqual(lru.size, 1);
+    lru.set("c", 1);
+    lru.set("d", 1);
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    assert.deepStrictEqual([...lru.keys()], ["c", "d"]);
+  });
+
+  it("lru invariant is maintained in the corner case size == 1", async () => {
     const lru = new TLRU({ defaultLRU: true, maxStoreSize: 1, maxAgeMs: 1000 });
 
-    lru.set('foo1', 'bar1');
-    lru.set('foo2', 'bar2');
+    lru.set("foo1", "bar1");
+    lru.set("foo2", "bar2");
 
-    lru.get('foo2'); // now foo2 should be deleted instead of foo1
+    lru.get("foo2"); // now foo2 should be deleted instead of foo1
 
-    lru.set('foo3', 'bar3');
+    lru.set("foo3", "bar3");
 
-    setImmediate(() => {
-      expect([...lru.keys()]).toEqual(['foo3']);
-      done();
-    });
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.deepStrictEqual([...lru.keys()], ["foo3"]);
   });
 
-  it('get() returns item value', () => {
+  it("get() returns item value", () => {
     const lru = new TLRU({ defaultLRU: true, maxStoreSize: 2, maxAgeMs: 1000 });
-    lru.set('foo', 'bar');
-    expect(lru.get('foo')).toBe('bar');
+    lru.set("foo", "bar");
+    assert.strictEqual(lru.get("foo"), "bar");
   });
 
-  it('get() with revieve=false returns item value without changing the order', done => {
-    expect.assertions(2);
+  it("get() with revive=false returns item value without changing the order", async () => {
     const lru = new TLRU({ defaultLRU: true, maxStoreSize: 2, maxAgeMs: 1000 });
-    lru.set('foo', 'bar');
-    lru.set('bar', 'baz');
-    expect(lru.get('foo', false)).toEqual('bar');
-    lru.set('baz', 'foo');
+    lru.set("foo", "bar");
+    lru.set("bar", "baz");
+    assert.strictEqual(lru.get("foo", false), "bar");
+    lru.set("baz", "foo");
 
-    setImmediate(() => {
-      expect(lru.get('foo')).toBeUndefined();
-      done();
-    });
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.strictEqual(lru.get("foo"), undefined);
   });
 
-  it('get respects max age', done => {
-    expect.assertions(2);
+  it("get respects max age", { timeout: 300 }, async () => {
     const lru = new TLRU({ defaultLRU: true, maxAgeMs: 5 });
-    lru.set('foo', 'bar');
-    expect(lru.get('foo')).toBe('bar');
-    setTimeout(() => {
-      //   'the entry is removed if age > max_age'
-      expect(lru.has('foo')).toBeFalsy();
-      done();
-    }, 100);
-  }, 300);
-
-  it('evicting items by age', done => {
-    expect.assertions(2);
-    const lru = new TLRU({ defaultLRU: true, maxAgeMs: 5 });
-    lru.set('foo', 'bar');
-    expect(lru.get('foo')).toBe('bar');
-    setTimeout(() => {
-      // 'the entry is removed if age > max_age': function(lru) {
-      expect(lru.get('foo')).toBeUndefined();
-      done();
-    }, 100);
+    lru.set("foo", "bar");
+    assert.strictEqual(lru.get("foo"), "bar");
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    //   'the entry is removed if age > max_age'
+    assert.strictEqual(lru.has("foo"), false);
   });
 
-  it('evicting items by age (2)', done => {
-    expect.assertions(2);
+  it("evicting items by age", async () => {
+    const lru = new TLRU({ defaultLRU: true, maxAgeMs: 5 });
+    lru.set("foo", "bar");
+    assert.strictEqual(lru.get("foo"), "bar");
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    // 'the entry is removed if age > max_age': function(lru) {
+    assert.strictEqual(lru.get("foo"), undefined);
+  });
+
+  it("evicting items by age (2)", async () => {
     const lru = new TLRU({ defaultLRU: true, maxAgeMs: 100000 });
-    lru.set('foo', 'bar');
-    expect(lru.get('foo')).toBe('bar');
-    setTimeout(() => {
-      // the entry is not removed if age < max_age': function(lru) {
-      expect(lru.get('foo')).toBe('bar');
-      lru.clear();
-      done();
-    }, 100);
+    lru.set("foo", "bar");
+    assert.strictEqual(lru.get("foo"), "bar");
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    // the entry is not removed if age < max_age': function(lru) {
+    assert.strictEqual(lru.get("foo"), "bar");
+    lru.clear();
   });
 });
 
-describe('idempotent changes', () => {
-  afterEach(setImmediate);
+describe("idempotent changes", () => {
+  afterEach(() => new Promise((resolve) => setImmediate(resolve)));
 
-  it('set() and remove() on empty LRU is idempotent', () => {
+  it("set() and remove() on empty LRU is idempotent", () => {
     const lru = new TLRU({ defaultLRU: true, maxAgeMs: 500 });
     const json1 = JSON.stringify(lru);
 
-    lru.set('foo1', 'bar1');
-    lru.delete('foo1');
+    lru.set("foo1", "bar1");
+    lru.delete("foo1");
     const json2 = JSON.stringify(lru);
 
-    expect(json2).toBe(json1);
+    assert.strictEqual(json2, json1);
   });
 
-  it('2 set()s and 2 remove()s on empty LRU is idempotent', () => {
+  it("2 set()s and 2 remove()s on empty LRU is idempotent", () => {
     const lru = new TLRU({ defaultLRU: true, maxAgeMs: 500 });
     const json1 = JSON.stringify(lru);
 
-    lru.set('foo1', 'bar1');
-    lru.set('foo2', 'bar2');
-    lru.delete('foo1');
-    lru.delete('foo2');
+    lru.set("foo1", "bar1");
+    lru.set("foo2", "bar2");
+    lru.delete("foo1");
+    lru.delete("foo2");
     const json2 = JSON.stringify(lru);
 
-    expect(json2).toBe(json1);
+    assert.strictEqual(json2, json1);
   });
 
-  it('2 set()s and 2 remove()s (in opposite order) on empty LRU is idempotent', () => {
+  it("2 set()s and 2 remove()s (in opposite order) on empty LRU is idempotent", () => {
     const lru = new TLRU({ defaultLRU: true, maxAgeMs: 500 });
     const json1 = JSON.stringify(lru);
 
-    lru.set('foo1', 'bar1');
-    lru.set('foo2', 'bar2');
-    lru.delete('foo2');
-    lru.delete('foo1');
+    lru.set("foo1", "bar1");
+    lru.set("foo2", "bar2");
+    lru.delete("foo2");
+    lru.delete("foo1");
     const json2 = JSON.stringify(lru);
 
-    expect(json2).toBe(json1);
+    assert.strictEqual(json2, json1);
   });
 
-  it('after setting one key, get() is idempotent', () => {
+  it("after setting one key, get() is idempotent", () => {
     const lru = new TLRU({ defaultLRU: true, maxStoreSize: 2, maxAgeMs: 500 });
-    lru.set('a', 'a');
+    lru.set("a", "a");
     const json1 = JSON.stringify(lru);
 
-    lru.get('a');
+    lru.get("a");
     const json2 = JSON.stringify(lru);
 
-    expect(json2).toBe(json1);
+    assert.strictEqual(json2, json1);
   });
 
-  it('after setting two keys, get() on last-set key is idempotent', () => {
+  it("after setting two keys, get() on last-set key is idempotent", () => {
     const lru = new TLRU({ defaultLRU: true, maxStoreSize: 2, maxAgeMs: 500 });
-    lru.set('a', 'a');
-    lru.set('b', 'b');
+    lru.set("a", "a");
+    lru.set("b", "b");
     const json1 = JSON.stringify(lru);
 
-    lru.get('b');
+    lru.get("b");
     const json2 = JSON.stringify(lru);
 
-    expect(json2).toBe(json1);
+    assert.strictEqual(json2, json1);
   });
 });
