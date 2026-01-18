@@ -1,77 +1,60 @@
 {
   "name": "tlru",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Time aware least recently used (TLRU) cache for Node",
-  "types": "./dist/index.d.ts",
-  "main": "./dist/index.js",
   "keywords": [
     "LRU",
     "cache",
-    "typescript",
+    "expires",
     "lru-cache",
+    "receptacle",
+    "setTimeout",
+    "time-aware",
+    "tlru",
     "ttl",
     "ttu",
-    "time-aware",
-    "setTimeout",
-    "tlru",
-    "expires",
-    "receptacle"
+    "typescript"
   ],
-  "files": [
-    "dist/*.js",
-    "dist/*.ts"
-  ],
-  "engines": {
-    "node": ">=12.1"
+  "homepage": "https://github.com/tinovyatkin/tlru#readme",
+  "bugs": {
+    "url": "https://github.com/tinovyatkin/tlru/issues"
   },
-  "scripts": {
-    "test": "node --expose-gc node_modules/jest/bin/jest --detectOpenHandles --logHeapUsage --coverage",
-    "lint": "eslint \"{src,__tests__}/**/*.ts\" --ignore-path .gitignore",
-    "build": "tsc",
-    "postversion": "git push origin master --tags",
-    "prepublishOnly": "tsc && npm test"
+  "license": "MIT",
+  "author": "Konstantin Vyatkin <tino@vtkn.io>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tinovyatkin/tlru.git"
   },
   "directories": {
     "lib": "src",
     "test": "__tests__"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tinovyatkin/tlru.git"
-  },
-  "author": "Konstantin Vyatkin <tino@vtkn.io>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/tinovyatkin/tlru/issues"
-  },
-  "homepage": "https://github.com/tinovyatkin/tlru#readme",
-  "devDependencies": {
-    "@babel/preset-env": "7.22.20",
-    "@babel/preset-typescript": "7.23.0",
-    "@types/jest": "29.5.5",
-    "@types/node": "18.17.2",
-    "@typescript-eslint/eslint-plugin": "6.9.0",
-    "@typescript-eslint/parser": "6.9.0",
-    "eslint": "8.51.0",
-    "eslint-config-prettier": "9.0.0",
-    "eslint-plugin-prettier": "5.0.0",
-    "jest": "29.7.0",
-    "jest-junit": "16.0.0",
-    "prettier": "3.0.3",
-    "typescript": "5.2.2"
+  "files": [
+    "dist/*.js",
+    "dist/*.ts"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "test": "node --expose-gc --experimental-test-coverage --test __tests__/*.test.ts",
+    "lint": "oxlint --tsconfig ./tsconfig.lint.json --type-aware",
+    "format": "oxfmt --write .",
+    "build": "tsgo",
+    "postversion": "git push origin master --tags",
+    "prepublishOnly": "tsgo && npm test"
   },
   "dependencies": {
     "fun-dispatcher": "^1.2.6"
   },
-  "jest": {
-    "collectCoverage": true,
-    "verbose": true,
-    "coverageReporters": [
-      "text",
-      "json",
-      "cobertura",
-      "lcov"
-    ],
-    "testEnvironment": "node"
+  "devDependencies": {
+    "@types/node": "24",
+    "@typescript/native-preview": "latest",
+    "oxfmt": "0",
+    "oxlint": "1",
+    "oxlint-tsgolint": "0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

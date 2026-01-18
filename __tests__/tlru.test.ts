@@ -1,76 +1,67 @@
-import { TLRU } from '../src/index';
+import { describe, it, afterEach } from "node:test";
+import assert from "node:assert";
+import { TLRU } from "../src/index.ts";
 
-describe('Use TLRU as time sensitive cache', () => {
-  afterEach(setImmediate);
+describe("Use TLRU as time sensitive cache", () => {
+  afterEach(() => new Promise((resolve) => setImmediate(resolve)));
 
-  it('tlru proactively removes expired items', done => {
+  it("tlru proactively removes expired items", { timeout: 1500 }, async () => {
     const lru = new TLRU({ maxStoreSize: 4, maxAgeMs: 1000 });
-    lru.set('a', 1, 500);
-    lru.set('b', 2, 700);
-    lru.set('c', 3); // default TTU = maxAgeMs
+    lru.set("a", 1, 500);
+    lru.set("b", 2, 700);
+    lru.set("c", 3); // default TTU = maxAgeMs
 
-    setTimeout(() => {
-      expect(lru.has('a')).toBeFalsy();
-      expect(lru.has('b')).toBeTruthy();
-      expect(lru.has('c')).toBeTruthy();
-      expect(lru.size).toBe(2);
-    }, 600);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    assert.strictEqual(lru.has("a"), false);
+    assert.strictEqual(lru.has("b"), true);
+    assert.strictEqual(lru.has("c"), true);
+    assert.strictEqual(lru.size, 2);
 
-    setTimeout(() => {
-      expect(lru.has('b')).toBeFalsy();
-      expect(lru.has('c')).toBeTruthy();
-      expect(lru.size).toBe(1);
-    }, 800);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    assert.strictEqual(lru.has("b"), false);
+    assert.strictEqual(lru.has("c"), true);
+    assert.strictEqual(lru.size, 1);
 
-    setTimeout(() => {
-      expect(lru.get('c')).toBeUndefined();
-      expect(lru.size).toBe(0);
-      done();
-    }, 1100);
-  }, 1500);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    assert.strictEqual(lru.get("c"), undefined);
+    assert.strictEqual(lru.size, 0);
+  });
 
-  it('get is not affecting item TTU', done => {
+  it("get is not affecting item TTU", { timeout: 1500 }, async () => {
     const lru = new TLRU({ maxStoreSize: 4, maxAgeMs: 1000 });
-    lru.set('a', 1, 500);
-    lru.set('b', 2, 700);
-    lru.set('c', 3); // default TTU = maxAgeMs
+    lru.set("a", 1, 500);
+    lru.set("b", 2, 700);
+    lru.set("c", 3); // default TTU = maxAgeMs
 
-    setTimeout(() => {
-      expect(lru.has('a')).toBeFalsy();
-      expect(lru.get('b')).toBe(2);
-      expect(lru.has('c')).toBeTruthy();
-      expect(lru.size).toBe(2);
-    }, 600);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    assert.strictEqual(lru.has("a"), false);
+    assert.strictEqual(lru.get("b"), 2);
+    assert.strictEqual(lru.has("c"), true);
+    assert.strictEqual(lru.size, 2);
 
-    setTimeout(() => {
-      expect(lru.has('b')).toBeFalsy();
-      expect(lru.has('c')).toBeTruthy();
-      expect(lru.size).toBe(1);
-      done();
-    }, 800);
-  }, 1500);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    assert.strictEqual(lru.has("b"), false);
+    assert.strictEqual(lru.has("c"), true);
+    assert.strictEqual(lru.size, 1);
+  });
 
-  it('item can be revived to original TTU on get', done => {
+  it("item can be revived to original TTU on get", { timeout: 1600 }, async () => {
     const lru = new TLRU({ maxStoreSize: 4, maxAgeMs: 1000 });
-    lru.set('a', 1, 500);
-    lru.set('b', 2, 700);
-    lru.set('c', 3); // default TTU = maxAgeMs
+    lru.set("a", 1, 500);
+    lru.set("b", 2, 700);
+    lru.set("c", 3); // default TTU = maxAgeMs
 
-    setTimeout(() => {
-      expect(lru.has('a')).toBeFalsy();
-      expect(lru.get('b', true)).toBe(2); // 'b' get new 700 ms of life
-      expect(lru.size).toBe(2);
-    }, 600);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    assert.strictEqual(lru.has("a"), false);
+    assert.strictEqual(lru.get("b", true), 2); // 'b' get new 700 ms of life
+    assert.strictEqual(lru.size, 2);
 
-    setTimeout(() => {
-      expect(lru.has('b')).toBeTruthy();
-      expect(lru.has('c')).toBeFalsy(); // should be evicted by cache maxAgeMs default
-      expect(lru.size).toBe(1);
-    }, 1200);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    assert.strictEqual(lru.has("b"), true);
+    assert.strictEqual(lru.has("c"), false); // should be evicted by cache maxAgeMs default
+    assert.strictEqual(lru.size, 1);
 
-    setTimeout(() => {
-      expect(lru.size).toBe(0);
-      done();
-    }, 1500);
-  }, 1600);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    assert.strictEqual(lru.size, 0);
+  });
 });

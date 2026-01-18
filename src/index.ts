@@ -14,7 +14,7 @@ export class TLRU<U, T> extends Map<U, T> {
       maxAgeMs?: number;
       defaultLRU?: boolean;
       disposer?: (obj: T) => void;
-    } = {}
+    } = {},
   ) {
     super();
     if (options.maxAgeMs) this.maxAgeMs = options.maxAgeMs;
@@ -23,11 +23,7 @@ export class TLRU<U, T> extends Map<U, T> {
     if (options.disposer) this.disposer = options.disposer;
   }
 
-  set(
-    key: U,
-    value: T,
-    ttuMs = this.maxAgeMs + this.size /* to separate fast entries */
-  ): this {
+  set(key: U, value: T, ttuMs = this.maxAgeMs + this.size /* to separate fast entries */): this {
     if (this.size >= this.maxStoreSize) {
       // cleaning up old entries - this first all to be cleaned actually
       this.scheduler.runNext();
@@ -35,11 +31,10 @@ export class TLRU<U, T> extends Map<U, T> {
     this.scheduler.schedule(
       String(key),
       () => {
-        if (typeof this.disposer === "function" && super.has(key))
-          this.disposer(super.get(key)!);
+        if (typeof this.disposer === "function" && super.has(key)) this.disposer(super.get(key)!);
         super.delete(key);
       },
-      ttuMs
+      ttuMs,
     );
     return super.set(key, value);
   }
@@ -53,7 +48,7 @@ export class TLRU<U, T> extends Map<U, T> {
           this.scheduler.schedule(
             String(key),
             () => super.delete(key),
-            original.delay + super.size
+            original.delay + super.size,
           );
       }
       return super.get(key);

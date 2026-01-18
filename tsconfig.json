@@ -1,25 +1,23 @@
 {
   "compilerOptions": {
-    "target": "es2019",
-    "lib": ["es2019"],
+    "target": "es2022",
+    "lib": ["es2022"],
+    "rootDir": "./src",
     "outDir": "./dist",
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "removeComments": true,
-    "pretty": false,
     "moduleResolution": "node",
     "module": "commonjs",
     "declaration": true,
-    "listEmittedFiles": true,
-    "allowSyntheticDefaultImports": false,
+    "esModuleInterop": true,
     "strict": true,
-    /* Additional Checks */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "strictFunctionTypes": false
+    "skipLibCheck": true
   },
   "include": ["./src/**/*.ts"],
-  "exclude": ["node_modules", "@types"]
+  "exclude": ["node_modules"]
 }
